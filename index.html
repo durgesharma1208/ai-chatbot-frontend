@@ -2,20 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#08080f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>NexusAI — Intelligent Chat</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
+    <!-- Splash / Loading Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <svg viewBox="0 0 60 60" fill="none">
+                    <circle cx="30" cy="30" r="26" stroke="url(#splashGrad)" stroke-width="2" class="splash-ring splash-ring-outer"/>
+                    <circle cx="30" cy="30" r="16" stroke="url(#splashGrad)" stroke-width="2" class="splash-ring splash-ring-inner"/>
+                    <circle cx="30" cy="30" r="5" fill="url(#splashGrad)" class="splash-core"/>
+                    <defs>
+                        <linearGradient id="splashGrad" x1="4" y1="4" x2="56" y2="56">
+                            <stop stop-color="#a78bfa"/>
+                            <stop offset="0.5" stop-color="#818cf8"/>
+                            <stop offset="1" stop-color="#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="splash-text">NexusAI</div>
+            <div class="splash-loader">
+                <div class="splash-loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer">
         <!-- Ambient background effects -->
         <div class="ambient-bg">
+            <div class="noise-overlay"></div>
+            <div class="gradient-mesh"></div>
             <div class="orb orb-1"></div>
             <div class="orb orb-2"></div>
             <div class="orb orb-3"></div>
+            <div class="orb orb-4"></div>
         </div>
 
         <!-- Sidebar -->
@@ -44,6 +74,7 @@
             <button class="new-chat-btn" id="newChatBtn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span>New Chat</span>
+                <kbd class="kbd-hint">⌘N</kbd>
             </button>
             <div class="chat-history-list" id="chatHistoryList">
                 <div class="history-section-title">Recent</div>
@@ -55,6 +86,7 @@
                         <span class="model-name">LLaMA 3.1 8B</span>
                         <span class="model-detail">Instant · Groq</span>
                     </div>
+                    <div class="model-status-dot"></div>
                 </div>
             </div>
         </aside>
@@ -64,15 +96,20 @@
             <!-- Top bar -->
             <header class="top-bar">
                 <button class="menu-btn" id="menuBtn" aria-label="Open sidebar">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
                 </button>
                 <div class="top-bar-title">
                     <span>NexusAI</span>
-                    <div class="status-dot"></div>
+                    <div class="status-badge">
+                        <div class="status-dot"></div>
+                        <span class="status-text">Online</span>
+                    </div>
                 </div>
-                <button class="clear-btn" id="clearBtn" title="Clear chat">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                </button>
+                <div class="top-bar-actions">
+                    <button class="clear-btn" id="clearBtn" title="Clear chat" aria-label="Clear chat">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
+                </div>
             </header>
 
             <!-- Chat messages -->
@@ -83,9 +120,10 @@
                         <div class="welcome-glow"></div>
                         <div class="welcome-icon">
                             <svg viewBox="0 0 80 80" fill="none">
-                                <circle cx="40" cy="40" r="36" stroke="url(#welGrad)" stroke-width="2" opacity="0.5"/>
-                                <circle cx="40" cy="40" r="24" stroke="url(#welGrad)" stroke-width="2" opacity="0.8"/>
-                                <circle cx="40" cy="40" r="8" fill="url(#welGrad)"/>
+                                <circle cx="40" cy="40" r="36" stroke="url(#welGrad)" stroke-width="1.5" opacity="0.4" class="welcome-ring-1"/>
+                                <circle cx="40" cy="40" r="28" stroke="url(#welGrad)" stroke-width="1.5" opacity="0.6" class="welcome-ring-2"/>
+                                <circle cx="40" cy="40" r="20" stroke="url(#welGrad)" stroke-width="1.5" opacity="0.8" class="welcome-ring-3"/>
+                                <circle cx="40" cy="40" r="6" fill="url(#welGrad)" class="welcome-core"/>
                                 <defs>
                                     <linearGradient id="welGrad" x1="4" y1="4" x2="76" y2="76">
                                         <stop stop-color="#a78bfa"/>
@@ -100,19 +138,35 @@
                         <div class="suggestions">
                             <button class="suggestion-card" data-prompt="Explain quantum computing in simple terms">
                                 <div class="suggestion-icon">🔬</div>
-                                <span>Explain quantum computing in simple terms</span>
+                                <div class="suggestion-text">
+                                    <span class="suggestion-title">Explain quantum computing</span>
+                                    <span class="suggestion-desc">in simple terms</span>
+                                </div>
+                                <div class="suggestion-arrow">→</div>
                             </button>
                             <button class="suggestion-card" data-prompt="Write a Python function to sort a list using merge sort">
                                 <div class="suggestion-icon">💻</div>
-                                <span>Write a Python merge sort function</span>
+                                <div class="suggestion-text">
+                                    <span class="suggestion-title">Python merge sort</span>
+                                    <span class="suggestion-desc">Write a sorting function</span>
+                                </div>
+                                <div class="suggestion-arrow">→</div>
                             </button>
                             <button class="suggestion-card" data-prompt="Give me 5 creative startup ideas for 2025">
                                 <div class="suggestion-icon">🚀</div>
-                                <span>Creative startup ideas for 2025</span>
+                                <div class="suggestion-text">
+                                    <span class="suggestion-title">Startup ideas for 2025</span>
+                                    <span class="suggestion-desc">5 creative concepts</span>
+                                </div>
+                                <div class="suggestion-arrow">→</div>
                             </button>
                             <button class="suggestion-card" data-prompt="Help me write a professional email to my manager requesting time off">
                                 <div class="suggestion-icon">✉️</div>
-                                <span>Draft a professional time-off email</span>
+                                <div class="suggestion-text">
+                                    <span class="suggestion-title">Professional email</span>
+                                    <span class="suggestion-desc">Request time off</span>
+                                </div>
+                                <div class="suggestion-arrow">→</div>
                             </button>
                         </div>
                     </div>
@@ -120,10 +174,15 @@
                     <!-- Messages container -->
                     <div class="messages-container" id="messagesContainer"></div>
                 </div>
+
+                <!-- Scroll to bottom FAB -->
+                <button class="scroll-bottom-btn" id="scrollBottomBtn" aria-label="Scroll to bottom">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
             </div>
 
             <!-- Input area -->
-            <div class="input-area">
+            <div class="input-area" id="inputArea">
                 <div class="input-wrapper">
                     <div class="input-container" id="inputContainer">
                         <textarea 
@@ -131,13 +190,17 @@
                             placeholder="Message NexusAI..." 
                             rows="1"
                             autofocus
+                            aria-label="Type your message"
                         ></textarea>
                         <div class="input-actions">
                             <span class="char-count" id="charCount"></span>
                             <button class="send-btn" id="sendBtn" disabled aria-label="Send message">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="send-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M22 2L11 13"/>
                                     <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                                </svg>
+                                <svg class="stop-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+                                    <rect x="6" y="6" width="12" height="12" rx="2"/>
                                 </svg>
                             </button>
                         </div>
